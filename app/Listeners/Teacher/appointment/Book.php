@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Listeners;
+namespace App\Listeners\Teacher\Appointment;
 
-use App\Events\Teacher\Appointment\Book;
+use App\Events\Teacher\Appointment\Book as BookEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 
-class BookAppointmentEmail
+class Book
 {
     /**
      * Create the event listener.
@@ -22,10 +22,10 @@ class BookAppointmentEmail
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param  BookEvent  $event
      * @return void
      */
-    public function handle(Book $event)
+    public function handle(BookEvent $event)
     {
         $appointment = $event->appointment;
         App::setLocale($appointment->user->locale);
