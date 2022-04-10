@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Events\Teacher\Appointment\Book as BookEvent;
-use App\Listeners\Teacher\Appointment\Book as BookListener;
+use App\Listeners\Teacher\Appointment\ViaEmail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -21,7 +21,7 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         BookEvent::class => [
-            BookListener::class,
+            ViaEmail::class,
         ],
     ];
 
