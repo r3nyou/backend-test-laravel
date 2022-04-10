@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\Teacher\Appointment\Book;
+use App\Events\Teacher\Appointment\Cancel;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
 
@@ -22,6 +23,8 @@ class AppointmentController extends Controller
 
     public function cancel(int $id)
     {
-        dd(__METHOD__);
+        // cancel appointment process...
+
+        Cancel::dispatch(Appointment::first());
     }
 }
