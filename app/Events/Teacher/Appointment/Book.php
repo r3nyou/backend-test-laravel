@@ -2,6 +2,7 @@
 
 namespace App\Events\Teacher\Appointment;
 
+use App\Events\Event;
 use App\Models\Appointment;
 use App\Models\User;
 use Carbon\Carbon;
@@ -14,7 +15,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class Book
+class Book extends Event
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -38,5 +39,19 @@ class Book
     public function broadcastOn()
     {
         return new PrivateChannel('channel-name');
+    }
+
+    public function locale(): string
+    {
+        return $this->appointment->user->locale;
+    }
+
+    public function payload(): array
+    {
+        return [
+            'name' => $this->appointment->teacher->name,
+            'student_name' => $this->appointment->user->name,
+            'start_at' => $this->appointment->start_at,
+        ];
     }
 }
