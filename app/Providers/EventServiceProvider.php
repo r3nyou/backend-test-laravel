@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Events\Teacher\Appointment\Book as BookAppointment;
 use App\Events\Teacher\Appointment\Cancel as CancelAppointment;
+use App\Events\User\Auth\Register;
 use App\Listeners\Channels\ViaEmail;
+use App\Listeners\Channels\ViaSms;
 use App\Listeners\Channels\ViaTelegram;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -19,8 +21,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        Registered::class => [
-            SendEmailVerificationNotification::class,
+        Register::class => [
+            ViaEmail::class,
+            ViaSms::class,
         ],
         BookAppointment::class => [
             ViaEmail::class,
@@ -29,7 +32,7 @@ class EventServiceProvider extends ServiceProvider
         CancelAppointment::class => [
             ViaEmail::class,
             ViaTelegram::class,
-        ]
+        ],
     ];
 
     /**
