@@ -1,64 +1,60 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# 題目
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+實作通知推播系統
 
-## About Laravel
+使用者的通知管道有
+- email
+- sms
+- telegram
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+使用者的語系有
+- zh-TW
+- en
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+PD 會希望在特定的時間通知使用者，例如
+- 註冊成功: email & sms
+- 學生預約課程: email & telegram
+- 學生取消課程: email & telegram
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+# 需求
 
-## Learning Laravel
+請以程式碼的描述性以及擴充性為主設計該通知推播系統
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+寄送實體不用實作，直接將結果以字串印出來即可
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 範例啟動 及 測試方式
 
-## Laravel Sponsors
+```
+./vendor/bin/sail up
+./vendor/bin/sail artisan migrate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+預約會產生測試資料，取消預約不會真的刪除資料
 
-### Premium Partners
+直接以 curl 測試
+```
+# 模擬事件觸發
+curl --location --request POST 'http://localhost/api/appointment'
+curl --location --request DELETE 'http://localhost/api/appointment/1'
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+# 說明
 
-## Contributing
+各事件實作在 `app/Events`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+將事件依賴的 model 注入事件類別，透過組合來完成事件類別內的方法
 
-## Code of Conduct
+事件繼承抽象類別 Event，用 namespace 來取得對應發送內容的翻譯檔路徑，語系設定與發送內容由子類別實作
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+各通知管道實作在 `app/Listeners/Cahnnels`
 
-## Security Vulnerabilities
+若需要調整或新增事件，只需要調整 `app/Events/*`，並繼承抽象類別 Event
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+如果要調整或新增通知管道，只需要調整 `app/Listeners/Cahnnels/*`，並注入抽象類別 Event ，透過事件父類別的介面去取得發送所需的事件資料
 
-## License
+若要調整事件與通知管道的綁定，在 `EventServiceProvider.php` 內設定即可
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 其它說明
+
+- 翻譯檔位於 `lang/*`
+- 日常的情境為 request 進入到 controller ，跑完 business layer 即可觸發事件。參考 `app/Http/Controllers/AppointmentController.php`
