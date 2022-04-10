@@ -34,6 +34,7 @@ PD 會希望在特定的時間通知使用者，例如
 直接以 curl 測試
 ```
 # 模擬事件觸發
+curl --location --request POST 'http://localhost/api/register'
 curl --location --request POST 'http://localhost/api/appointment'
 curl --location --request DELETE 'http://localhost/api/appointment/1'
 ```
@@ -42,15 +43,15 @@ curl --location --request DELETE 'http://localhost/api/appointment/1'
 
 各事件實作在 `app/Events`
 
-將事件依賴的 model 注入事件類別，透過組合來完成事件類別內的方法
-
 事件繼承抽象類別 Event，用 namespace 來取得對應發送內容的翻譯檔路徑，語系設定與發送內容由子類別實作
+
+將事件依賴的 model 注入事件類別，透過組合來完成事件類別內的方法
 
 各通知管道實作在 `app/Listeners/Cahnnels`
 
 若需要調整或新增事件，只需要調整 `app/Events/*`，並繼承抽象類別 Event
 
-如果要調整或新增通知管道，只需要調整 `app/Listeners/Cahnnels/*`，並注入抽象類別 Event ，透過事件父類別的介面去取得發送所需的事件資料
+如果要調整或新增通知管道，只需要調整 `app/Listeners/Cahnnels/*`，並注入抽象類別 Event ，透過抽象類的介面去取得發送所需的資料
 
 若要調整事件與通知管道的綁定，在 `EventServiceProvider.php` 內設定即可
 
